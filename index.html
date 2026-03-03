@@ -2,28 +2,40 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KCWN Wellness - 운동 인증</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .sticky-col { position: sticky; left: 0; background-color: white; z-index: 10; border-right: 2px solid #e2e8f0; }
-        .sticky-header { position: sticky; top: 0; z-index: 20; }
-        /* 스크롤바 디자인 */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .sticky-col { 
+            position: sticky; 
+            left: 0; 
+            background-color: white; 
+            z-index: 10; 
+            border-right: 2px solid #f1f5f9; 
+        }
+        .sticky-header { 
+            position: sticky; 
+            top: 0; 
+            z-index: 20; 
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .stat-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .stat-card:hover { transform: translateY(-3px); }
+        
+        .today-header { background-color: #10b981 !important; color: white !important; }
+        .today-cell { background-color: #ecfdf5 !important; }
         
         .modal-overlay { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); }
-        .stat-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.1); }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
-        
-        /* 오늘 날짜 하이라이트 효과 */
-        .today-highlight-cell { background-color: #ecfdf5 !important; } /* emerald-50 */
-        .today-header-highlight { background-color: #10b981 !important; color: white !important; } /* emerald-500 */
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -36,76 +48,80 @@
                     <i data-lucide="dumbbell" class="text-emerald-500"></i>
                     KCWN Wellness
                 </h1>
-                <p class="text-slate-500 mt-1 font-medium">3월 월/수/금 운동 챌린지 (3/4 ~ 3/30)</p>
+                <p class="text-slate-500 mt-1 font-medium italic">"3월 월/수/금 챌린지 - 함께 운동해요!"</p>
             </div>
             
             <div class="flex items-center gap-2">
-                <div class="relative group">
+                <div class="relative group flex-1 md:flex-none">
                     <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 group-focus-within:text-emerald-500 transition-colors"></i>
                     <input type="text" id="searchInput" placeholder="이름 검색..." 
-                           class="pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 w-full md:w-48 text-sm transition-all shadow-sm">
+                           class="pl-9 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 w-full md:w-48 text-sm shadow-sm transition-all">
                 </div>
+                <!-- 참가자 관리 버튼 복구 -->
                 <button onclick="toggleModal(true)" class="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-slate-800 transition-all text-sm font-medium shadow-md">
-                    <i data-lucide="settings-2" class="w-4 h-4"></i>
-                    참가자 관리
+                    <i data-lucide="users-round" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">참가자 관리</span>
                 </button>
             </div>
         </header>
 
-        <!-- 대쉬보드 요약 섹션 -->
+        <!-- 대시보드 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
             <div class="stat-card bg-indigo-600 p-6 rounded-2xl shadow-lg shadow-indigo-200/50 flex items-center gap-5 text-white">
-                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-white backdrop-blur-md">
+                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
                     <i data-lucide="users" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <p class="text-xs font-bold text-indigo-100 uppercase tracking-widest opacity-80">전체 멤버</p>
+                    <p class="text-[10px] font-bold text-indigo-100 uppercase tracking-widest opacity-80">전체 멤버</p>
                     <h2 class="text-3xl font-bold" id="statTotalMembers">0명</h2>
                 </div>
             </div>
             <div class="stat-card bg-emerald-500 p-6 rounded-2xl shadow-lg shadow-emerald-200/50 flex items-center gap-5 text-white">
-                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-white backdrop-blur-md">
+                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
                     <i data-lucide="calendar-check" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <p class="text-xs font-bold text-emerald-100 uppercase tracking-widest opacity-80">오늘 인증</p>
+                    <p class="text-[10px] font-bold text-emerald-100 uppercase tracking-widest opacity-80">오늘 인증</p>
                     <h2 class="text-3xl font-bold" id="statTodayCount">0명</h2>
                 </div>
             </div>
             <div class="stat-card bg-violet-600 p-6 rounded-2xl shadow-lg shadow-violet-200/50 flex items-center gap-5 text-white">
-                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-white backdrop-blur-md">
+                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
                     <i data-lucide="medal" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <p class="text-xs font-bold text-violet-100 uppercase tracking-widest opacity-80">최고 챌린저</p>
+                    <p class="text-[10px] font-bold text-violet-100 uppercase tracking-widest opacity-80">최고 챌린저</p>
                     <h2 class="text-2xl font-bold truncate max-w-[140px]" id="statTopChallenger">-</h2>
                 </div>
             </div>
         </div>
 
         <!-- 메인 보드 -->
-        <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden">
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
             <div class="overflow-x-auto overflow-y-auto max-h-[600px]" id="tableContainer">
                 <table class="w-full text-left border-collapse">
                     <thead class="sticky-header">
                         <tr class="bg-slate-50 border-b border-slate-200" id="headerRow">
-                            <th class="p-5 font-bold text-slate-800 min-w-[160px] sticky-col bg-slate-50 border-r border-slate-100">참가자 이름</th>
+                            <th class="p-5 font-bold text-slate-800 min-w-[160px] sticky-col bg-slate-50 border-r border-slate-100 shadow-sm">참가자 이름</th>
                         </tr>
                     </thead>
                     <tbody id="participantList">
+                        <tr>
+                            <td colspan="10" class="p-20 text-center text-slate-400 font-medium">데이터를 동기화 중입니다...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 상태 표시 알림 -->
+        <!-- 상태 알림 -->
         <div id="statusToast" class="fixed bottom-8 right-8 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl z-50">
-            <div id="statusIcon" class="w-2 h-2 rounded-full bg-emerald-500"></div>
-            <span id="statusText" class="text-sm font-medium">데이터 전송 중...</span>
+            <div id="statusIcon" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+            <span id="statusText" class="text-sm font-medium">연결됨</span>
         </div>
     </div>
 
-    <!-- 이름 관리 모달 -->
+    <!-- 참가자 관리 모달 -->
     <div id="nameModal" class="fixed inset-0 z-[100] modal-overlay hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
@@ -116,11 +132,12 @@
             </div>
             <div class="p-6">
                 <div class="flex gap-2 mb-6">
-                    <input type="text" id="newNameInput" placeholder="새 참가자 이름" 
-                           class="flex-1 px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
-                    <button onclick="addParticipant()" class="bg-emerald-500 text-white px-5 py-2 rounded-xl hover:bg-emerald-600 transition-all font-semibold">추가</button>
+                    <input type="text" id="newNameInput" placeholder="새 참가자 이름 입력" 
+                           class="flex-1 px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm">
+                    <button onclick="addParticipant()" class="bg-emerald-500 text-white px-5 py-2 rounded-xl hover:bg-emerald-600 transition-all font-semibold text-sm">추가</button>
                 </div>
                 <div id="modalParticipantList" class="space-y-2 max-h-64 overflow-y-auto pr-2">
+                    <!-- 실시간 이름 목록 -->
                 </div>
             </div>
             <div class="p-4 bg-slate-50 text-right">
@@ -129,26 +146,37 @@
         </div>
     </div>
 
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbywqvmKI66caoF7WBuNpvPa223GOkAF4wDOgPFwvAVHTHMQZbtycQcZS0kWsJQpROf_/exec";
-        
-        let participants = JSON.parse(localStorage.getItem('kcwn_participants')) || ["김철수", "이영희", "박민수"];
-        let checkData = JSON.parse(localStorage.getItem('kcwn_check_data')) || {}; 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- 설정 ---
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbywqvmKI66caoF7WBuNpvPa223GOkAF4wDOgPFwvAVHTHMQZbtycQcZS0kWsJQpROf_/exec";
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kcwn-wellness-v3';
+
+        let activeParticipants = []; // 실시간 이름 명단
+        let checkData = {}; // 실시간 체크 데이터
+        let user = null;
+        let searchTerm = "";
+
+        // --- 날짜 생성 로직 ---
         const generateDates = () => {
             const dates = [];
-            const start = new Date(2026, 2, 4); 
-            const end = new Date(2026, 2, 30);  
+            const start = new Date(2026, 2, 4);
+            const end = new Date(2026, 2, 30);
             const today = new Date();
             today.setHours(0,0,0,0);
-
             let current = new Date(start);
             while (current <= end) {
                 const day = current.getDay();
                 if ([1, 3, 5].includes(day)) { dates.push(new Date(current)); }
                 current.setDate(current.getDate() + 1);
             }
-
             dates.sort((a, b) => {
                 const isTodayA = a.getTime() === today.getTime();
                 const isTodayB = b.getTime() === today.getTime();
@@ -158,210 +186,210 @@
             });
             return dates;
         };
-
         const dateRange = generateDates();
 
-        const initTable = () => {
+        // --- 앱 초기화 ---
+        async function initApp() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) { console.error(err); }
+
+            onAuthStateChanged(auth, (u) => {
+                user = u;
+                if (user) {
+                    startRealtimeSync();
+                }
+            });
+        }
+
+        function startRealtimeSync() {
+            // 1. 참가자 명단 실시간 동기화
+            const pQuery = collection(db, 'artifacts', appId, 'public', 'data', 'participants');
+            onSnapshot(pQuery, (snapshot) => {
+                activeParticipants = [];
+                snapshot.forEach(doc => activeParticipants.push(doc.data().name));
+                activeParticipants.sort(); // 가나다순 정렬
+                renderAll();
+                renderModalList();
+            });
+
+            // 2. 체크박스 데이터 실시간 동기화
+            const cQuery = collection(db, 'artifacts', appId, 'public', 'data', 'checks');
+            onSnapshot(cQuery, (snapshot) => {
+                checkData = {};
+                snapshot.forEach(doc => {
+                    const [name, date] = doc.id.split('___');
+                    if (!checkData[name]) checkData[name] = {};
+                    checkData[name][date] = doc.data().status;
+                });
+                renderAll();
+            });
+        }
+
+        // --- UI 렌더링 ---
+        function renderAll() {
             const headerRow = document.getElementById('headerRow');
+            const participantList = document.getElementById('participantList');
             const todayStr = new Date().toLocaleDateString('ko-KR');
 
+            // 헤더 렌더링
             while (headerRow.cells.length > 1) { headerRow.deleteCell(1); }
-
-            dateRange.forEach((date, index) => {
+            dateRange.forEach((date, idx) => {
                 const dateStr = date.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', weekday: 'short' });
                 const isToday = date.toLocaleDateString('ko-KR') === todayStr;
-                
                 const th = document.createElement('th');
-                // 오늘이면서 첫 번째 열인 경우 특별 색상 적용
-                const highlightClass = (isToday && index === 0) 
-                    ? 'today-header-highlight shadow-inner ring-2 ring-emerald-500 ring-inset' 
-                    : isToday 
-                        ? 'text-emerald-600 bg-emerald-50 border-emerald-500 border-b-2' 
-                        : 'text-slate-400 border-transparent border-b-2';
-
-                th.className = `p-4 text-center min-w-[110px] text-sm font-bold transition-all ${highlightClass}`;
-                th.innerHTML = `
-                    <div class="flex flex-col items-center">
-                        ${isToday ? '<span class="text-[9px] uppercase font-black tracking-widest opacity-80 mb-1 animate-pulse">Checking</span>' : ''}
-                        <span>${dateStr}</span>
-                    </div>
-                `;
+                const isFirstToday = isToday && idx === 0;
+                th.className = `p-4 text-center min-w-[110px] text-xs font-bold border-b-2 transition-all ${
+                    isFirstToday ? 'today-header shadow-lg' : isToday ? 'text-emerald-600 bg-emerald-50 border-emerald-500' : 'text-slate-400 border-transparent'
+                }`;
+                th.innerHTML = `<div class="flex flex-col items-center">${isToday ? '<span class="text-[8px] uppercase font-black tracking-widest opacity-80 mb-1 animate-pulse">Checking</span>' : ''}<span>${dateStr}</span></div>`;
                 headerRow.appendChild(th);
             });
 
-            renderParticipants(participants);
-            updateDashboard();
-            lucide.createIcons();
-        };
-
-        const renderParticipants = (list) => {
-            const participantList = document.getElementById('participantList');
+            // 바디 렌더링
             participantList.innerHTML = '';
-            const todayStr = new Date().toLocaleDateString('ko-KR');
+            const displayList = activeParticipants.filter(p => p.toLowerCase().includes(searchTerm.toLowerCase()));
+            
+            if (displayList.length === 0) {
+                participantList.innerHTML = `<tr><td colspan="${dateRange.length + 1}" class="p-20 text-center text-slate-400 font-medium">표시할 멤버가 없습니다.</td></tr>`;
+            }
 
-            list.forEach(name => {
+            displayList.forEach(name => {
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-slate-100 hover:bg-slate-50/80 transition-colors group";
-                
                 const nameTd = document.createElement('td');
                 nameTd.className = "p-5 font-bold text-slate-700 sticky-col border-r border-slate-50 group-hover:text-emerald-600 transition-colors";
                 nameTd.innerText = name;
                 tr.appendChild(nameTd);
 
-                dateRange.forEach((date, index) => {
+                dateRange.forEach((date, idx) => {
                     const dateKey = date.toISOString().split('T')[0];
                     const isToday = date.toLocaleDateString('ko-KR') === todayStr;
                     const td = document.createElement('td');
-                    
-                    // 오늘이 첫 번째 열일 때 데이터 셀 배경색 강조
-                    const cellHighlight = (isToday && index === 0) ? 'today-highlight-cell border-x border-emerald-100' : isToday ? 'bg-emerald-50/30' : '';
-                    
+                    const cellHighlight = (isToday && idx === 0) ? 'today-cell border-x border-emerald-100' : isToday ? 'bg-emerald-50/30' : '';
                     td.className = `p-4 text-center transition-colors ${cellHighlight}`;
-                    
                     const checkbox = document.createElement('input');
                     checkbox.type = "checkbox";
-                    checkbox.dataset.name = name;
-                    checkbox.dataset.date = dateKey;
-                    checkbox.dataset.today = isToday;
                     checkbox.checked = (checkData[name] && checkData[name][dateKey]) || false;
-                    checkbox.className = "w-7 h-7 rounded-xl border-slate-300 text-emerald-500 focus:ring-emerald-500/20 transition-all cursor-pointer accent-emerald-500 scale-100 hover:scale-110 active:scale-95 shadow-sm";
-                    
-                    checkbox.onchange = () => {
-                        if(!checkData[name]) checkData[name] = {};
-                        checkData[name][dateKey] = checkbox.checked;
-                        localStorage.setItem('kcwn_check_data', JSON.stringify(checkData));
-                        handleCheckChange(name, dateKey, checkbox.checked);
-                        updateDashboard();
-                    };
-                    
+                    checkbox.className = "w-7 h-7 rounded-xl border-slate-300 text-emerald-500 cursor-pointer accent-emerald-500 transition-transform active:scale-90 shadow-sm";
+                    checkbox.onchange = () => handleToggle(name, dateKey, checkbox.checked);
                     td.appendChild(checkbox);
                     tr.appendChild(td);
                 });
                 participantList.appendChild(tr);
             });
-        };
 
-        const updateDashboard = () => {
-            const todayCountElem = document.getElementById('statTodayCount');
-            const totalMembersElem = document.getElementById('statTotalMembers');
-            const topChallengerElem = document.getElementById('statTopChallenger');
-
-            totalMembersElem.innerText = `${participants.length}명`;
-
-            let todayCount = 0;
-            let counts = {};
-
-            participants.forEach(name => {
-                if (checkData[name]) {
-                    Object.keys(checkData[name]).forEach(dateKey => {
-                        if (checkData[name][dateKey]) {
-                            counts[name] = (counts[name] || 0) + 1;
-                            const todayStrKey = new Date().toISOString().split('T')[0];
-                            if (dateKey === todayStrKey) todayCount++;
-                        }
-                    });
-                }
-            });
-
-            todayCountElem.innerText = `${todayCount}명`;
-
-            let maxChecks = 0;
-            let topName = "-";
-            for (const name in counts) {
-                if (counts[name] > maxChecks) {
-                    maxChecks = counts[name];
-                    topName = name;
-                }
-            }
-            topChallengerElem.innerText = topName !== "-" ? `${topName} (${maxChecks}회)` : "-";
-        };
-
-        const toggleModal = (show) => {
-            const modal = document.getElementById('nameModal');
-            if (show) { modal.classList.remove('hidden'); renderModalParticipants(); } 
-            else { modal.classList.add('hidden'); initTable(); }
+            updateDashboard();
             lucide.createIcons();
+        }
+
+        // --- 명단 관리 액션 ---
+        window.addParticipant = async () => {
+            const input = document.getElementById('newNameInput');
+            const name = input.value.trim();
+            if (!name) return;
+            if (activeParticipants.includes(name)) {
+                alert("이미 존재하는 이름입니다.");
+                return;
+            }
+            showToast("멤버 추가 중...", "sync");
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'participants', name);
+                await setDoc(docRef, { name, createdAt: new Date().toISOString() });
+                input.value = "";
+                showToast("추가 완료", "success");
+            } catch (err) { showToast("실패", "error"); }
         };
 
-        const renderModalParticipants = () => {
+        window.deleteParticipant = async (name) => {
+            if (!confirm(`${name}님을 명단에서 삭제하시겠습니까?`)) return;
+            showToast("삭제 중...", "sync");
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'participants', name);
+                await deleteDoc(docRef);
+                showToast("삭제 완료", "success");
+            } catch (err) { showToast("실패", "error"); }
+        };
+
+        async function handleToggle(name, date, status) {
+            showToast("데이터 공유 중...", "sync");
+            try {
+                const docId = `${name}___${date}`;
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'checks', docId);
+                await setDoc(docRef, { name, date, status, updatedAt: new Date().toISOString() });
+                
+                // 구글 시트 백업
+                fetch(GOOGLE_SHEET_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name, date, status }) });
+                showToast("업데이트 완료", "success");
+            } catch (err) { showToast("실패", "error"); }
+        }
+
+        // --- 모달 관리 ---
+        window.toggleModal = (show) => {
+            document.getElementById('nameModal').classList.toggle('hidden', !show);
+            if (show) renderModalList();
+        };
+
+        function renderModalList() {
             const listContainer = document.getElementById('modalParticipantList');
+            if (!listContainer) return;
             listContainer.innerHTML = '';
-            participants.forEach((name, index) => {
+            activeParticipants.forEach(name => {
                 const div = document.createElement('div');
                 div.className = "flex justify-between items-center p-3.5 bg-slate-50 rounded-2xl border border-slate-100";
                 div.innerHTML = `
                     <span class="font-bold text-slate-700">${name}</span>
-                    <button onclick="deleteParticipant(${index})" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 p-2 rounded-xl transition-all">
+                    <button onclick="deleteParticipant('${name}')" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 p-2 rounded-xl transition-all">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 `;
                 listContainer.appendChild(div);
             });
             lucide.createIcons();
-        };
+        }
 
-        const addParticipant = () => {
-            const input = document.getElementById('newNameInput');
-            const name = input.value.trim();
-            if (name && !participants.includes(name)) {
-                participants.push(name);
-                saveParticipants();
-                input.value = '';
-                renderModalParticipants();
-            }
-        };
-
-        const deleteParticipant = (index) => {
-            participants.splice(index, 1);
-            saveParticipants();
-            renderModalParticipants();
-        };
-
-        const saveParticipants = () => { localStorage.setItem('kcwn_participants', JSON.stringify(participants)); };
-
-        const handleCheckChange = async (name, date, status) => {
-            showToast("데이터 저장 중...", "sync");
-            const payload = { name, date, status, timestamp: new Date().toISOString() };
-            try {
-                await fetchWithRetry(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                showToast(`${name}님 저장 완료!`, "success");
-            } catch (error) {
-                showToast("저장 실패", "error");
-            }
-        };
-
-        const fetchWithRetry = async (url, options, n = 3) => {
-            for (let i = 0; i < n; i++) {
-                try { return await fetch(url, options); } catch (err) {
-                    if (i === n - 1) throw err;
-                    await new Promise(r => setTimeout(r, 1000));
+        // --- 대시보드 및 기타 ---
+        function updateDashboard() {
+            const todayStrKey = new Date().toISOString().split('T')[0];
+            let todayCount = 0; let counts = {};
+            activeParticipants.forEach(name => {
+                if (checkData[name]) {
+                    Object.keys(checkData[name]).forEach(dateKey => {
+                        if (checkData[name][dateKey]) {
+                            counts[name] = (counts[name] || 0) + 1;
+                            if (dateKey === todayStrKey) todayCount++;
+                        }
+                    });
                 }
-            }
-        };
+            });
+            document.getElementById('statTotalMembers').innerText = `${activeParticipants.length}명`;
+            document.getElementById('statTodayCount').innerText = `${todayCount}명`;
+            let maxChecks = 0; let topName = "-";
+            for (const name in counts) { if (counts[name] > maxChecks) { maxChecks = counts[name]; topName = name; } }
+            document.getElementById('statTopChallenger').innerText = topName !== "-" ? `${topName} (${maxChecks}회)` : "-";
+        }
 
-        const showToast = (message, type) => {
+        function showToast(message, type) {
             const toast = document.getElementById('statusToast');
-            const text = document.getElementById('statusText');
+            document.getElementById('statusText').innerText = message;
             const icon = document.getElementById('statusIcon');
-            text.innerText = message;
-            if (type === "success") icon.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#10b981]";
-            else if (type === "error") icon.className = "w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_10px_#f43f5e]";
+            if (type === "success") icon.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]";
+            else if (type === "error") icon.className = "w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_8px_#f43f5e]";
             else icon.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse";
             toast.classList.remove('translate-y-20', 'opacity-0');
             if (type !== "sync") setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
-        };
+        }
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase();
-            renderParticipants(participants.filter(p => p.toLowerCase().includes(val)));
+            searchTerm = e.target.value;
+            renderAll();
         });
 
-        window.onload = initTable;
+        initApp();
     </script>
 </body>
 </html>
